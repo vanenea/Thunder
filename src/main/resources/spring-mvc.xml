@@ -24,7 +24,10 @@
 		
 		<!-- 配置组件扫描 -->
 		<context:component-scan base-package="com.chen" />
+		
+		<!-- quartz任务注解 -->
 		<task:annotation-driven/>	
+		
 		<!-- 配置ViewResolver -->
 		<bean 
 			class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -64,6 +67,7 @@
 		</mvc:interceptors> -->
 		
 		<util:properties id="pro" location="classpath:mail.properties"/>
+		<util:properties id="sms" location="classpath:SMS.properties"/>
 		
 		<!-- 邮件功能 -->
 		<!-- <bean id="configurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
