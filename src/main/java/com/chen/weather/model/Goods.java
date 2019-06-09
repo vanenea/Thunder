@@ -44,5 +44,10 @@ public class Goods {
 	public void setSkuQuantity(Integer skuQuantity) {
 		this.skuQuantity = skuQuantity;
 	}
+	@Override
+	public String toString() {
+		return "Goods [id=" + id + ", name=" + name + ", title=" + title + ", price=" + price + ", isSold=" + isSold
+				+ ", skuQuantity=" + skuQuantity + "]";
+	}
 	
 }

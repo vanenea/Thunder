@@ -1,17 +1,11 @@
 package com.chen.weather.service.impl;
 
 import java.io.IOException;
-import java.util.Date;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +19,7 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import com.chen.util.CommonUtil;
 import com.chen.util.HttpUtil;
 import com.chen.weather.model.WeatherData;
 import com.chen.weather.service.WeatherService;
@@ -62,65 +57,38 @@ public class WeatherServiceImpl implements WeatherService {
 	private String templateCode;//短信模板
 	
 	@Autowired
-    private JavaMailSender mailSender;
+	private CommonUtil commonUtil;
 	
 	@Value("#{pro.toMail}")
 	private String toMail;
 	
-	@Value("#{pro.username}")
-	private String fromMail;
-	
 	@Value("#{pro.urlApi}")
 	private String urlApi;
-	
-	@Value("#{pro.flag}")
-	private String mailFlag;
 	
 	@Value("#{sms.flag}")
 	private String SMSFlag;
 	
 	@Scheduled(cron = "0 20 22 * * ?")
 	public int sendMail() {
-		if("on".equalsIgnoreCase(mailFlag)) {
-			WeatherData data = null;
-			try {
-				data = getWeatherData(urlApi, "utf-8");
-			} catch (Exception e1) {
-				LOGGER.error(e1.getMessage());
-				LOGGER.info("获取天气数据异常");
-				return -2;
-			}
-			if(data==null) {
-				LOGGER.info("获取天气数据异常");
-				return -2;
-			}
-			LOGGER.info("发送的目的邮箱 [ "+toMail+" ]");
-			MimeMessage mime = mailSender.createMimeMessage();
-			MimeMessageHelper helper;
-			try {
-				String[] users = toMail.split(";");
-				for (int i = 0; i < users.length; i++) {
-					String[] user = users[i].split(",");
-					helper = new MimeMessageHelper(mime, true, "utf-8");
-					helper.setTo(user[0]);// 收件人邮箱地址
-					helper.setFrom(fromMail);// 
-					helper.setSentDate(new Date());
-					helper.setSubject("天气预报");// 主题
-					String text = "您好"+user[1]+"。"+data.getLocation()+"明天["+data.getDate()+"]天气预报,白天"+data.getCond_txt_d()+",晚间"+data.getCond_txt_n()+",最高温度"+data.getTmp_max()+",最低温度"+data.getTmp_min()+",降水概率"+data.getPop()+",请注意天气变化！";
-					helper.setText(text);// 正文
-					mailSender.send(mime);
-				}
-			} catch (MessagingException e) {
-				LOGGER.error(e.getMessage());
-				LOGGER.info("发送邮件失败");
-				return -1;
-			}
-			LOGGER.info("发送邮件成功");
-			return 0;
-		} else {
-			LOGGER.info("发送邮箱开关关闭");
-			return 10;
+		WeatherData data = null;
+		try {
+			data = getWeatherData(urlApi, "utf-8");
+		} catch (Exception e1) {
+			LOGGER.error(e1.getMessage());
+			LOGGER.info("获取天气数据异常");
+			return -2;
 		}
+		if(data==null) {
+			LOGGER.info("获取天气数据异常");
+			return -2;
+		}
+		String text = "您好"+toMail.substring(toMail.indexOf(",")+1)+"。"+data.getLocation()+"明天["+data.getDate()+"]天气预报,白天"+
+						data.getCond_txt_d()+",晚间"+data.getCond_txt_n()+",最高温度"+data.getTmp_max()+",最低温度"+data.getTmp_min()+
+						",降水概率"+data.getPop()+",请注意天气变化！";
+		commonUtil.sendMail("天气预报", text);
+		LOGGER.info("发送邮件成功");
+		return 0;
+		
 	}
 	
 	@Scheduled(cron = "0 0 22 * * ?")
