@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chen.util.JsonResult;
 import com.chen.weather.service.WeatherService;
-
+ 
 
 @RestController
 @RequestMapping("/weather")
