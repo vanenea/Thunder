@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
@@ -28,7 +27,7 @@ public class GoodsServiceImpl implements GoodsService {
 	@Autowired
 	private CommonUtil commonUtil;
 	
-	@Scheduled(cron = "0 0 18 * * ?")
+	
 	public Goods getGoodsInfor() {
 		HttpUtil httpUtil = new HttpUtil();
 		Goods goods = new Goods();
