@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+</head>
+<body>
+<p>设备id<div id="result"></div><button id="bton">复制</button></p>
+<script type="text/javascript">
+
+function getDevice() {
+	var ua = navigator.userAgent;
+	var idx1 = ua.indexOf("deviceId:");
+	if(idx1==-1) {
+		alert("无法获取设备id");
+		return "";
+	}
+	var idx2 = ua.indexOf(";",idx1);
+	idx2 = (idx2==-1?ua.length:idx2);
+	var deviceId = ua.substring(idx1+9,idx2);
+	return deviceId;
+}
+
+var deviceId = getDevice();
+document.getElementById("result").innerText = deviceId;
+
+function copy(str){
+　　　　var save = function (e){
+　　　　　　e.clipboardData.setData('text/plain',str);//下面会说到clipboardData对象
+　　　　　　e.preventDefault();//阻止默认行为
+　　　　}
+　　　　document.addEventListener('copy',save);
+　　　　document.execCommand("copy");//使文档处于可编辑状态，否则无效
+}
+                    
+document.getElementById('bton').addEventListener('click',function(ev){
+　　　　copy(deviceId);
+})
+
+</script>
+
+</body>
+</html>
