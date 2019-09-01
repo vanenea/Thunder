@@ -54,6 +54,9 @@ public class HttpUtil {
 		return str;
 	}
 	
+	public String httpGetForString(String url) throws ClientProtocolException, IOException {
+		return httpGet(url, "UTF-8");
+	}
 	
 	public byte[] httpGet(String url) throws ClientProtocolException, IOException {
 		HttpGet get = new HttpGet(url);
