@@ -28,7 +28,7 @@ public class HotNewsController {
 	 * 获取知乎热门
 	 * @return
 	 */
-	@RequestMapping(value = "getZhiHuHotNews", headers = {"Access-Control-Allow-Origin=*", "Access-Control-Allow-Credentials=true"})
+	@RequestMapping(value = "getZhiHuHotNews")
 	@ResponseBody
 	public JsonResult<List<NewsData>> getZhiHuHotNews(){
 		LOGGER.info("====== 获取热门 >> 知乎 ======");
@@ -45,17 +45,33 @@ public class HotNewsController {
 	 * 获取虎扑热门
 	 * @return
 	 */
-	@RequestMapping(value = "getHuPuHotNews", headers = {"Access-Control-Allow-Origin=*", "Access-Control-Allow-Credentials=true"})
+	@RequestMapping(value = "getHuPuHotNews")
 	@ResponseBody
-	public JsonResult<List<JSONObject>> getHuPuHotNews(){
+	public JsonResult<List<NewsData>> getHuPuHotNews(){
 		LOGGER.info("====== 获取热门 >> 虎扑 ======");
 		try {
-			List<JSONObject> datas = hotNewsService.getHuPuHotNews();
-			return new JsonResult<List<JSONObject>>("0000","获取虎扑热门成功", datas);
+			List<NewsData> datas = hotNewsService.getHuPuHotNews();
+			return new JsonResult<List<NewsData>>("0000","获取虎扑热门成功", datas);
 		} catch (Exception e) {
-			return new JsonResult<List<JSONObject>>("1111",e.getMessage());
+			return new JsonResult<List<NewsData>>("1111",e.getMessage());
 		}
 		
 	}
 	
+	/**
+	 * 获取虎扑热门
+	 * @return
+	 */
+	@RequestMapping(value = "getSinaHotNews")
+	@ResponseBody
+	public JsonResult<List<NewsData>> getHuSinaNews(){
+		LOGGER.info("====== 获取热门 >> 新浪 ======");
+		try {
+			List<NewsData> datas = hotNewsService.getSinaNews();
+			return new JsonResult<List<NewsData>>("0000","获取新浪热门成功", datas);
+		} catch (Exception e) {
+			return new JsonResult<List<NewsData>>("1111",e.getMessage());
+		}
+		
+	}
 }

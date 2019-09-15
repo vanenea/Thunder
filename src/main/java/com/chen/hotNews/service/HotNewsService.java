@@ -2,7 +2,6 @@ package com.chen.hotNews.service;
 
 import java.util.List;
 
-import com.alibaba.fastjson.JSONObject;
 import com.chen.hotNews.bean.NewsData;
 
 public interface HotNewsService {
@@ -17,5 +16,11 @@ public interface HotNewsService {
 	  * 获取虎扑热门
 	  * @return
 	  */
-	 List<JSONObject> getHuPuHotNews();
+	 List<NewsData> getHuPuHotNews();
+	 
+	 /**
+	  * 获取新浪热门
+	  * @return
+	  */
+	 List<NewsData> getSinaNews();
 }
