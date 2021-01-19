@@ -207,6 +207,7 @@ public class WeatherServiceImpl implements WeatherService {
 			data.setWind_sc(jo.getString("wind_sc"));
 			data.setWind_spd(jo.getString("wind_spd"));
 		}
+		LOGGER.info("###### 天气数据 >> " + data + " ######");
 		return data;
 	}
 
