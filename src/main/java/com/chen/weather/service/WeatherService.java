@@ -1,6 +1,7 @@
 package com.chen.weather.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -23,5 +24,5 @@ public interface WeatherService {
 	/**
 	 * 获取天气数据
 	 */
-	WeatherData getWeatherData(String urlApi, String encode) throws ClientProtocolException, IOException;
+	List<WeatherData> getWeatherData(String urlApi) throws ClientProtocolException, IOException;
 }

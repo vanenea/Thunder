@@ -35,17 +35,16 @@ public class CommonUtil {
 	@Value("#{pro.flag}")
 	private String mailFlag;
 	
-	public int sendMail(String item, String text) {
+	public int sendMail(String item, String text, String toUsers) {
 		if("on".equalsIgnoreCase(mailFlag)) {
-			LOGGER.info("发送的目的邮箱 [ "+toMail+" ]");
+			LOGGER.info("发送的目的邮箱 [ "+toUsers+" ]");
 			MimeMessage mime = mailSender.createMimeMessage();
 			MimeMessageHelper helper;
 			try {
-				String[] users = toMail.split(";");
+				String[] users = toUsers.split(",");
 				for (int i = 0; i < users.length; i++) {
-					String[] user = users[i].split(",");
 					helper = new MimeMessageHelper(mime, true, "utf-8");
-					helper.setTo(user[0]);// 收件人邮箱地址
+					helper.setTo(users[i]);// 收件人邮箱地址
 					helper.setFrom(fromMail);// 
 					helper.setSentDate(new Date());
 					helper.setSubject(item);// 主题
