@@ -76,7 +76,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Value("#{sms.goodWeather}")
     private String goodWeather;
 
-    @Scheduled(cron = "0 20 22 * * ?")
+    @Scheduled(cron = "0 35 21 * * ?")
     public int sendMail() {
         List<WeatherData> wd = parseWeather();
         if(wd.size() > 1){
@@ -84,14 +84,14 @@ public class WeatherServiceImpl implements WeatherService {
             WeatherData tomorrow = wd.get(1);
             String[] toMails = toMail.split(";");
             //温差
-            Integer tmpC = ((Integer.parseInt(tomorrow.getTmp_max()) + Integer.parseInt(tomorrow.getTmp_min())) / 2) -
-                    ((Integer.parseInt(today.getTmp_max()) + Integer.parseInt(today.getTmp_min())) / 2);
+            Double tmpC = ((Double.parseDouble(tomorrow.getTmp_max()) + Double.parseDouble(tomorrow.getTmp_min())) / 2) -
+                    ((Double.parseDouble(today.getTmp_max()) + Double.parseDouble(today.getTmp_min())) / 2);
             for (int i = 0; i < toMails.length; i++) {
                 String[] tm = toMails[i].split(",");
                 String text = "亲爱的" + tm[1] + "。" + today.getLocation() + "明天["
-                        + tomorrow.getDate() + "]天气预报,白天" + tomorrow.getCond_txt_d() + ",晚间" + tomorrow.getCond_txt_n() + ",最高温度"
-                        + tomorrow.getTmp_max() + ",最低温度" + tomorrow.getTmp_min() + ",降水概率" + tomorrow.getPop() +
-                        ", 明天比今天温度" + ((tmpC > 0) ? "高" : "低") + (tmpC < 0 ? (tmpC * -1) : tmpC) + ", 请注意天气变化！";
+                        + tomorrow.getDate() + "]天气预报, 白天" + tomorrow.getCond_txt_d() + ", 晚间" + tomorrow.getCond_txt_n() + ", 最高温度"
+                        + tomorrow.getTmp_max() + ", 最低温度" + tomorrow.getTmp_min() + ", 降水概率" + tomorrow.getPop() +
+                        ", 明天比今天温度" + ((tmpC > 0) ? "高" : "低") + (tmpC < 0 ? (tmpC * -1) : tmpC) + "度, 请注意天气变化！ Mua  ^o^";
                 commonUtil.sendMail("天气预报", text, tm[0]);
             }
             LOGGER.info("发送邮件成功");
@@ -103,14 +103,15 @@ public class WeatherServiceImpl implements WeatherService {
 
     }
 
-    @Scheduled(cron = "0 0 22 * * ?")
+    @Scheduled(cron = "0 15 21 * * ?")
     public int sendSMS() {
         if ("on".equalsIgnoreCase(SMSFlag)) {
             // 获取天气数据
             List<WeatherData> wd = parseWeather();
             if(wd.size()>0){
-                WeatherData data = wd.get(0);
-                int code = Integer.valueOf(data.getCond_code_d());
+                WeatherData today = wd.get(0);
+                WeatherData tomorrow = wd.get(1);
+                int code = Integer.valueOf(tomorrow.getCond_code_d());
                 if (code >= 205 && code <= 901 || "on".equals(goodWeather)) {
                     // 设置超时时间-可自行调整
                     System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
@@ -132,14 +133,18 @@ public class WeatherServiceImpl implements WeatherService {
 
                         // 短信模板
                         JSONObject jo = new JSONObject();
+                        jo.put("location", tomorrow.getLocation());
+                        jo.put("date", tomorrow.getDate());
+                        jo.put("cond_txt_d", tomorrow.getCond_txt_d());
+                        jo.put("cond_txt_n", tomorrow.getCond_txt_n());
+                        jo.put("tmp_max", tomorrow.getTmp_max());
+                        jo.put("tmp_min", tomorrow.getTmp_min());
+                        jo.put("pop", tomorrow.getPop());
+                        //温差
+                        Double tmpC = ((Double.parseDouble(tomorrow.getTmp_max()) + Double.parseDouble(tomorrow.getTmp_min())) / 2) -
+                                ((Double.parseDouble(today.getTmp_max()) + Double.parseDouble(today.getTmp_min())) / 2);
+                        jo.put("tmpC", (tmpC > 0 ? "高" : "低") + (tmpC < 0 ? (tmpC * -1) : tmpC));
 
-                        jo.put("location", data.getLocation());
-                        jo.put("date", data.getDate());
-                        jo.put("cond_txt_d", data.getCond_txt_d());
-                        jo.put("cond_txt_n", data.getCond_txt_n());
-                        jo.put("tmp_max", data.getTmp_max());
-                        jo.put("tmp_min", data.getTmp_min());
-                        jo.put("pop", data.getPop());
                         // 要发送的手机号和姓名
                         String[] phoneNums = phoneNum.split(";");
                         for (int i = 0; i < phoneNums.length; i++) {
@@ -203,7 +208,8 @@ public class WeatherServiceImpl implements WeatherService {
             ja = ja.getJSONObject(0).getJSONArray("daily_forecast");
             for (int i = 0; i < ja.size(); i++) {
                 WeatherData wd = new WeatherData();
-                jo = ja.getJSONObject(0).getJSONArray("daily_forecast").getJSONObject(i);
+                jo = ja.getJSONObject(i);
+                wd.setLocation(location);
                 wd.setCond_code_d(jo.getString("cond_code_d"));
                 wd.setCond_code_n(jo.getString("cond_code_n"));
                 wd.setCond_txt_d(jo.getString("cond_txt_d"));
@@ -235,7 +241,7 @@ public class WeatherServiceImpl implements WeatherService {
         try {
             data = getWeatherData(urlApi);
         } catch (Exception e1) {
-            LOGGER.error(e1.getMessage());
+            LOGGER.error(e1.getLocalizedMessage());
             LOGGER.info("获取天气数据异常");
             throw new RuntimeException("获取天气数据异常");
         }
